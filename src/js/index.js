@@ -52,10 +52,8 @@ const controlRecipe = async () => {
 	if (id) {
 		recipeView.clearRecipe();
 		renderLoader(elements.recipe);
-		
-		if (state.search)
-		searchView.highLightSelected(id);
-		
+
+		if (state.search) searchView.highLightSelected(id);
 
 		state.recipe = new Recipe(id);
 		try {
@@ -74,52 +72,45 @@ const controlRecipe = async () => {
 
 ['hashchange', 'load'].forEach((event) => window.addEventListener(event, controlRecipe));
 
-
-
 //List Controller
 
 const controlList = () => {
-	if(!state.list)
-		state.list = new List();
+	if (!state.list) state.list = new List();
 
-	state.recipe.ingredients.forEach(el => {
+	state.recipe.ingredients.forEach((el) => {
 		const item = state.list.addItem(el.count, el.unit, el.ingredient);
 		listView.renderItem(item);
-	})
-	
+	});
+
 	// listView.renderClearBtn();
-	if(state.list)
-		elements.clearBtn.classList.add('vis');
-}
+	if (state.list) elements.clearBtn.classList.add('vis');
+};
 
-
-elements.shopping.addEventListener('click', e => {
+elements.shopping.addEventListener('click', (e) => {
 	const id = e.target.closest('.shopping__item').dataset.itemid;
-	
-	if(e.target.matches('.shopping__delete, .shopping__delete *')) {
+
+	if (e.target.matches('.shopping__delete, .shopping__delete *')) {
 		state.list.deleteItem(id);
 		listView.deleteItem(id);
-	} else if(e.target.matches('.shopping__count-value')) {
+	} else if (e.target.matches('.shopping__count-value')) {
 		const val = parseFloat(e.target.value, 10);
 		state.list.updateCount(id, val);
 	}
-})
+});
 
-
-elements.clearBtn.addEventListener('click', e => {
+elements.clearBtn.addEventListener('click', (e) => {
 	state.list.deleteAll();
 	listView.deleteAll();
 	elements.clearBtn.classList.remove('vis');
-})
+});
 
 // Like Controller
 
 const controlLike = () => {
+	if (!state.likes) state.likes = new Likes();
+	const currentID = state.recipe.id;
 
-	if(!state.likes) state.likes = new Likes();
-	const  currentID = state.recipe.id;
-
-	if(!state.likes.isLiked(currentID)) {
+	if (!state.likes.isLiked(currentID)) {
 		const newLike = state.likes.addLikes(
 			currentID,
 			state.recipe.title,
@@ -130,31 +121,27 @@ const controlLike = () => {
 		likesView.toggleLikeBtn(true);
 
 		likesView.renderLike(newLike);
-
-	}else {
-		state.likes.deleteLike (currentID);	
+	} else {
+		state.likes.deleteLike(currentID);
 		likesView.toggleLikeBtn(false);
 		likesView.deleteLike(currentID);
 	}
 
-	likesView.toggleLikeMenu(state.likes.getNumLikes()); 
+	likesView.toggleLikeMenu(state.likes.getNumLikes());
 };
 
+// Restore liked RECIPES on page load
 
-// Restore liked RECIPES on page load 
-
-window.addEventListener('load', e => {
-
+window.addEventListener('load', (e) => {
 	state.likes = new Likes();
 	state.likes.readStorage();
 	likesView.toggleLikeMenu(state.likes.getNumLikes());
-	state.likes.likes.forEach(like => likesView.renderLike(like));
-})
-
+	state.likes.likes.forEach((like) => likesView.renderLike(like));
+});
 
 elements.recipe.addEventListener('click', (e) => {
 	if (e.target.matches('.btn-decrease, .btn-decrease *')) {
-		if (state.recipe.servings > 1) {	
+		if (state.recipe.servings > 1) {
 			state.recipe.updateServings('dec');
 			recipeView.updateServingValue(state.recipe);
 		}
@@ -162,11 +149,8 @@ elements.recipe.addEventListener('click', (e) => {
 		state.recipe.updateServings('inc');
 		recipeView.updateServingValue(state.recipe);
 	} else if (e.target.matches('.recipe__btn--add, .recipe__btn--add *')) {
-		controlList(); 
+		controlList();
 	} else if (e.target.matches('.recipe__love, .recipe__love *')) {
 		controlLike();
 	}
 });
-
-
-
